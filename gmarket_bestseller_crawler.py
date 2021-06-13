@@ -61,12 +61,13 @@ os.makedirs(img_dir)
 os.chdir(img_dir) #이미지 저장하기 위해 폴더로 이동해있자
 img_no = 0
 
+#driver.switch_to.frame('best-list')[0]
 html = driver.page_source
 soup = BeautifulSoup(html, 'html.parser')
-bssection = soup.find('div', class_='best-list').find_all('li')
+bssection = soup.find_all('div', class_='best-list')[1].find_all('li')
 
 for i in bssection: 
-    
+  
     f = open(ff_name, 'a', encoding = 'UTF-8')
     print("=" *30)
     no += 1
@@ -80,7 +81,6 @@ for i in bssection:
     print("1. 판매순위 : ", ranking)
     f.write('\n' + '1. 판매순위 : ' + ranking + '\n')
     ranking2.append(ranking)
-    print('='*30)
     
     try:
          title = i.find('a',class_='itemname').get_text()
@@ -89,7 +89,6 @@ for i in bssection:
     print("2. 제품소개 : ", title)
     f.write('2. 제품소개 : '+ title +'\n')         
     title2.append(title)
-    print("=" *30)
     
     try:
          o_price = i.find('div',class_='o-price').get_text().replace("원", "").replace(",","")
@@ -98,17 +97,15 @@ for i in bssection:
     print("3. 원래가격 : ", o_price)
     f.write('3. 원래가격 : '+ o_price +'\n')         
     o_price2.append(o_price2)
-    print("=" *30)    
         
     try:
-        #s_price = i.find('dic',class_='s-price').get_text().replace("원", "").replace(",","")
+        #s_price = i.find('div',class_='s-price').get_text().replace("원", "").replace(",","")
         s_price = i.select_one('div.s-price > strong').get_text().replace("원", "").replace(",","")
     except AttributeError:
         s_price = ''
     print("4. 판매가격 : ", s_price)
     f.write('4. 판매가격 : '+ s_price +'\n')         
     s_price2.append(s_price2)
-    print("=" *30)
     
     try:
         #sale = i.find('span',class_='sale').find('em').get_text().replace("%", "")
@@ -119,30 +116,26 @@ for i in bssection:
     f.write('5. 할인율 : '+ sale +'\n')         
     sale2.append(sale2)
     print("=" *30)
+
     
     try:
         img = i.find('div','thumb').find('img')['src']
     except AttributeError :
              continue
-        
+ 
+    time.sleep(3)
+
     img_no += 1
     urllib.request.urlretrieve(img, str(img_no) + '.jpg') #이미지 저장
     time.sleep(3)
-
-    if cnt == img_no :
+   
+    if no == cnt : 
+        time.sleep(3)
         print("이미지 수집 완료 ------ 기다려주세요. ")
-        time.sleep(3)
-        continue
-          
-    no2.append(no) 
-    time.sleep(3)
-        
-    if cnt == no : 
-        time.sleep(3)
-        driver.close()
         f.close()
         break
     
+print(" ... ")    
 
 
 #표로 저장
@@ -185,3 +178,5 @@ excel.Quit()
 endt = time.time()
 total_time = endt = startt
 print("크롤링이 완료되었습니다. 총 크롤링 소요시간 : %s" %total_time)   
+
+driver.close()
